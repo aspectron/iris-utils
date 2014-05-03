@@ -1,0 +1,43 @@
+{
+  "name": "zetta-utils",
+  "description": "A set of useful routines for NodeJS application development",
+  "version": "0.0.21",
+  "author": {
+    "name": "ASPECTRON Inc.",
+    "email": "anton.yemelyanov@gmail.com"
+  },
+  "dependencies": {
+    "colors": "*",
+    "ascii-art": "*",
+    "underscore": "*"
+  },
+  "keywords": [
+    "utilities",
+    "framework",
+    "app"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/aspectron/zetta-utils"
+  },
+  "main": "zetta-utils",
+  "files": [
+    "zetta-utils.js",
+    "cybermedium.flf"
+  ],
+  "scripts": {
+    "prepublish": "npm prune"
+  },
+  "engines": {
+    "node": "*"
+  },
+  "readmeFilename": "README.md",
+  "bugs": {
+    "url": "https://github.com/aspectron/zetta-utils/issues"
+  },
+  "license": "MIT",
+  "readme": "A set of useful routines for NodeJS application development\r\n",
+  "_id": "zetta-utils@0.0.21",
+  "_from": "zetta-utils@*",
+  "homepage": "https://github.com/aspectron/zetta-utils"
+}

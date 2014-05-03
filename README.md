@@ -1,4 +1,1 @@
-zetta-utils
-===========
-
-Collection of convenience utilities for NodeJs
+A set of useful routines for NodeJS application development
