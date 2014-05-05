@@ -1,7 +1,7 @@
 //
-// -- Generic NodeJS Utility Library, adopted for Elastic Cloud Hashing Project
+// -- Zetta Toolkit - Set of useful utilities for NodeJs
 //
-//  Copyright (c) 2011-2013 ASPECTRON Inc.
+//  Copyright (c) 2011-2014 ASPECTRON Inc.
 //  All Rights Reserved.
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -50,7 +50,7 @@ UTILS.render = function(text, font) {
 
 UTILS.get_ts = Date.now;
 
-UTILS.ts_string = function(src_date) {
+UTILS.ts_string = UTILS.tsString = function(src_date) {
     var a = src_date || (new Date());
     var year = a.getFullYear();
     var month = a.getMonth()+1; month = month < 10 ? '0' + month : month;
@@ -62,7 +62,7 @@ UTILS.ts_string = function(src_date) {
     return time;
 }
 
-UTILS.get_config = function(name) {
+UTILS.get_config = UTILS.getConfig = function(name) {
 
     var host_filename = __dirname + '/../../config/'+name+'.'+hostname+'.conf';
     var filename = __dirname + '/../../config/'+name+'.conf';
@@ -93,7 +93,7 @@ UTILS.get_ssl_options = function() {
 }
 
 
-UTILS.bind_database_config = function(db, _config_list, callback) {
+UTILS.bind_database_config = UTILS.bindDatabaseConfig = function(db, _config_list, callback) {
     var o = { _database : db }
     var config_list = _config_list.slice();
 
@@ -280,7 +280,7 @@ UTILS.Process = function(options) {
 }
 
 
-UTILS.bytes_to_size = function(bytes, precision)
+UTILS.bytes_to_size = UTILS.bytesToSize = function(bytes, precision)
 {
     var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
     var posttxt = 0;
@@ -341,7 +341,7 @@ UTILS.get_v4_ips = (function () {
     };
 })();
 
-UTILS.get_client_ip = function(req) {
+UTILS.get_client_ip = UTILS.getClientIp = function(req) {
   var ipAddress;
   // Amazon EC2 / Heroku workaround to get real client IP
   var forwardedIpsStr = req.header('x-forwarded-for'); 
@@ -362,7 +362,7 @@ UTILS.get_client_ip = function(req) {
 
 
 // http://stackoverflow.com/questions/5827612/node-js-fs-readdir-recursive-directory-search
-UTILS.walk_directory = function(dir, done) {
+UTILS.walk_directory = UTILS.walkDirectory = function(dir, done) {
   var results = [];
   fs.readdir(dir, function(err, list) {
     if (err) return done(err);
@@ -435,13 +435,6 @@ UTILS.init_http_modules = function(core, root_app, module_list, module_config, c
 
 UTILS.http_request = function(options, callback)
 {    
-/*    
-    var options = {
-      host: 'btc-e.com', //'btc-e.com',
-      path: _path,
-      method: 'GET'
-    };
-*/
     if(!UTILS.http)
         UTILS.http = require('http');
 
@@ -616,7 +609,6 @@ UTILS.Steps = function() {
     self.run = function(callback) {
         run_step();
         function run_step() {
-            // console.log("step...".cyan.bold);
             var step = self.steps.shift();
             if(!step)
                 return callback();

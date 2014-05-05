@@ -1,10 +1,10 @@
 {
   "name": "zetta-utils",
-  "description": "A set of useful routines for NodeJS application development",
-  "version": "0.0.21",
+  "description": "Zetta Toolkit - Set of useful utilities for NodeJs",
+  "version": "0.1.0",
   "author": {
     "name": "ASPECTRON Inc.",
-    "email": "anton.yemelyanov@gmail.com"
+    "email": "info@aspectron.com"
   },
   "dependencies": {
     "colors": "*",
@@ -37,7 +37,5 @@
   },
   "license": "MIT",
   "readme": "A set of useful routines for NodeJS application development\r\n",
-  "_id": "zetta-utils@0.0.21",
-  "_from": "zetta-utils@*",
   "homepage": "https://github.com/aspectron/zetta-utils"
 }
