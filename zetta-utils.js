@@ -43,7 +43,7 @@ UTILS.render = function(text, font) {
         UTILS.art = require('ascii-art');
 
     UTILS.art.font(text, font || '../../../cybermedium', '', function(rendered){
-        console.log(rendered);
+        console.log('\n'+rendered);
     });
 
 }
@@ -61,6 +61,27 @@ UTILS.ts_string = UTILS.tsString = function(src_date) {
     var time = year + '-' + month + '-' + date + ' ' + hour + ':' + min + ':' + sec;
     return time;
 }
+
+
+UTILS.readJSON = function(filename) {
+    if(!fs.existsSync(filename))
+        return undefined;
+    var text = fs.readFileSync(filename, { encoding : 'utf-8' });
+    if(!text)
+        return undefined;
+    try { 
+        return JSON.parse(text); 
+    } catch(ex) { 
+        console.log(ex.trace); 
+        console.log('Offensing content follows:',text); 
+    }
+    return undefined;
+}
+
+UTILS.writeJSON = function(filename, data) {
+    fs.writeFileSync(filename, JSON.stringify(data));
+}
+
 
 UTILS.get_config = UTILS.getConfig = function(name) {
 
