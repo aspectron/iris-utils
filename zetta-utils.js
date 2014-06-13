@@ -37,15 +37,17 @@ GLOBAL.dpc = function(t,fn) { if(typeof(t) == 'function') setTimeout(t,0); else 
 
 var UTILS = { }
 
-UTILS.render = function(text, font) {
+UTILS.render = function(text, font, callback) {
 
     if(!UTILS.art)
         UTILS.art = require('ascii-art');
 
-    UTILS.art.font(text, font || '../../../cybermedium', '', function(rendered){
-        console.log('\n'+rendered);
+    UTILS.art.font(text, font || '../../../cybermedium', '', function(rendered) {
+        if(callback)
+            return callback(null, rendered);
+        else
+            console.log('\n'+rendered);
     });
-
 }
 
 UTILS.get_ts = Date.now;
