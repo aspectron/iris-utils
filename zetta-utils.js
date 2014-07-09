@@ -30,6 +30,7 @@ var spawn = child_process.spawn;
 var exec = child_process.exec;
 var colors = require('colors');
 var _ = require('underscore');
+var path = require('path');
 
 var hostname = os.hostname();
 
@@ -199,6 +200,7 @@ UTILS.bind_database_config = UTILS.bindDatabaseConfig = function(db, _config_lis
 
 
 UTILS.MAX_LOG_FILE_SIZE = 50 * 1014 * 1024
+UTILS.KEEP_N_LOG_FILES = 4;
 UTILS.Logger = function(options) {
     var self = this;
     var file = options.filename;
@@ -219,9 +221,49 @@ UTILS.Logger = function(options) {
                 var filename = parts.pop();
                 var folder = parts.join('/');
 
+                var ext =  filename.split('.').pop();
+                var basename = path.basename(file, '.' + ext);
 
+                var temporaryFile =
+
+                fs.rename(file, folder + '/' + basename + ' 0.' + ext);
+
+                fs.readdir(folder, function (err, files) {
+                    var logFiles = [];
+
+                    _.forEach(files, function (file) {
+                        var stats = fs.statSync(folder + '/' + file);
+
+                        var pattern = new RegExp("^" + basename + " .*." + ext + "$", 'g');
+
+                        if (stats.isFile() && file.match(pattern)) {
+                            //console.log(file)
+                            var number = file.replace( /\D+/g, '');
+                            logFiles.push([file, number]);
+                            //logFiles.push([file, stats.ctime.getTime()]);
+                        }
+
+                    });
+
+                    logFiles.sort(function(a, b) {return b[1] - a[1]});
+//
+                    // we create a temporary file with index = 0
+                    if (logFiles.length > UTILS.KEEP_N_LOG_FILES + 1) {
+                        logFiles.shift();
+
+                        //logFiles = logFiles.slice(0, UTILS.KEEP_N_LOG_FILES + 1);
+                    }
+//
+                    _.forEach(logFiles, function(data) {
+
+                        console.log(folder + '/' + data[0], ' fff');
+                        console.log(folder + '/' + basename + ' ' + data[1] + '.' + ext, 'dddd');
+
+                        fs.rename(folder + '/' + data[0], folder + '/' + basename + ' ' + (parseInt(data[1]) + 1)  + '.' + ext);
+                    });
+                });
             }
-            else
+
                 dpc(60 * 1000, log_rotation);
         })
     }
