@@ -200,70 +200,64 @@ UTILS.bind_database_config = UTILS.bindDatabaseConfig = function(db, _config_lis
 
 
 UTILS.MAX_LOG_FILE_SIZE = 50 * 1014 * 1024
-UTILS.KEEP_N_LOG_FILES = 4;
+UTILS.KEEP_N_LOG_FILES = 5;
 UTILS.Logger = function(options) {
     var self = this;
     var file = options.filename;
 
+    var parts = file.split('/');
+    var filename = parts.pop();
+    var folder = parts.join('/');
+    var ext =  filename.split('.').pop();
+    var basename = path.basename(file, '.' + ext);
+    var pattern = new RegExp("^" + basename + " .*." + ext + "$", 'g');
+
     self.write = function(text) {
         try {
-            fs.appendFile(file, text);
-        } catch(ex) { console.log("Logger unable to append to log file:",ex); }
+            fs.appendFileSync(file, text);
+        } catch(ex) { console.log("Logger unable to append to log file:", file); }
     }
 
     function log_rotation() {
-
         fs.stat(file, function(err, stats) {
-
             if(stats && stats.size > UTILS.MAX_LOG_FILE_SIZE) {
-
-                var parts = file.split('/');
-                var filename = parts.pop();
-                var folder = parts.join('/');
-
-                var ext =  filename.split('.').pop();
-                var basename = path.basename(file, '.' + ext);
-
-                var temporaryFile =
-
                 fs.rename(file, folder + '/' + basename + ' 0.' + ext);
 
                 fs.readdir(folder, function (err, files) {
+                    if (err) {
+                        console.log("Logger unable to read log directory:", folder);
+                        return log_rotation();
+                    }
+
                     var logFiles = [];
 
                     _.forEach(files, function (file) {
-                        var stats = fs.statSync(folder + '/' + file);
-
-                        var pattern = new RegExp("^" + basename + " .*." + ext + "$", 'g');
-
-                        if (stats.isFile() && file.match(pattern)) {
-                            //console.log(file)
+                        if (file.match(pattern)) {
                             var number = file.replace( /\D+/g, '');
                             logFiles.push([file, number]);
                             //logFiles.push([file, stats.ctime.getTime()]);
                         }
-
                     });
 
-                    logFiles.sort(function(a, b) {return b[1] - a[1]});
-//
-                    // we create a temporary file with index = 0
-                    if (logFiles.length > UTILS.KEEP_N_LOG_FILES + 1) {
-                        logFiles.shift();
+                    logFiles.sort(function(a, b) {return a[1] - b[1]});
 
-                        //logFiles = logFiles.slice(0, UTILS.KEEP_N_LOG_FILES + 1);
+                    if (logFiles.length >= UTILS.KEEP_N_LOG_FILES) {
+                        logFiles.pop();
                     }
-//
-                    _.forEach(logFiles, function(data) {
 
-                        console.log(folder + '/' + data[0], ' fff');
-                        console.log(folder + '/' + basename + ' ' + data[1] + '.' + ext, 'dddd');
+                    rename();
 
-                        fs.rename(folder + '/' + data[0], folder + '/' + basename + ' ' + (parseInt(data[1]) + 1)  + '.' + ext);
-                    });
+                    function rename () {
+                        var data = logFiles.pop();
+                        if (!data)
+                            return log_rotation();
+
+                        fs.rename(folder + '/' + data[0], folder + '/' + basename + ' ' + (parseInt(data[1]) + 1)  + '.' + ext, function () {
+                            rename();
+                        });
+                    }
                 });
-            }
-
+            } else
                 dpc(60 * 1000, log_rotation);
         })
     }
