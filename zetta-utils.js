@@ -225,9 +225,11 @@ UTILS.Logger = function(options) {
     }
 
     var d = new Date();
-    //d.setHours(23);
-    //d.setMinutes();
     d.setSeconds(d.getSeconds()+20);
+
+    //uncoment following if want to start rotation at 24:00:00
+    //d.setHours(23); d.setMinutes(59); d.setSeconds(59);
+
     var d2      = new Date();
     var diff    = d.getTime()-d2.getTime();
     var fullDayMilliSeconds = 24 * 60 * 60 * 1000;
