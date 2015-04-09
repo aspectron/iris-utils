@@ -200,69 +200,132 @@ UTILS.bind_database_config = UTILS.bindDatabaseConfig = function(db, _config_lis
 
 
 UTILS.MAX_LOG_FILE_SIZE = 50 * 1014 * 1024
-UTILS.KEEP_N_LOG_FILES = 5;
 UTILS.Logger = function(options) {
     var self = this;
     var file = options.filename;
 
-    var parts = file.split('/');
-    var filename = parts.pop();
-    var folder = parts.join('/');
-    var ext =  filename.split('.').pop();
-    var basename = path.basename(file, '.' + ext);
-    var pattern = new RegExp("^" + basename + " .*." + ext + "$", 'g');
+    var logIntervalTime = options.logIntervalTime || 24 * 60 * 60;
+    var logPreserveTime = options.logPreserveTime || 7 * 24 * 60 * 60;
+    var newFile     = '';
+    var fileDate    = new Date();
+    var folderPath  = '';
 
+    buildNewFileName();
+
+    var flag = false;
     self.write = function(text) {
+        if( flag ){
+            flag = false;
+            copyFile(function(){
+                writeLog(text);
+            });
+            return;
+        }
+        writeLog(text);
+    }
+
+    var d = new Date();
+    //d.setHours(23);
+    //d.setMinutes();
+    d.setSeconds(d.getSeconds()+20);
+    var d2      = new Date();
+    var diff    = d.getTime()-d2.getTime();
+    var fullDayMilliSeconds = 24 * 60 * 60 * 1000;
+    if (diff < 0) {
+        diff = fullDayMilliSeconds + diff;
+    };
+
+    setTimeout(function(){
+        console.log('log-rotation started.'.red.bold, new Date());
+        flag        = true;
+        setInterval(function(){
+            flag        = true;
+        }, logIntervalTime * 1000);
+    }, diff)
+
+    function writeLog(text){
         try {
             fs.appendFileSync(file, text);
         } catch(ex) { console.log("Logger unable to append to log file:", file); }
     }
 
-    function log_rotation() {
-        fs.stat(file, function(err, stats) {
-            if(stats && stats.size > UTILS.MAX_LOG_FILE_SIZE) {
-                fs.rename(file, folder + '/' + basename + ' 0.' + ext);
+    function buildNewFileName(){
+        var parts = file.split('/');
+        var filename = parts.pop();
+        var ext = filename.split('.');
+        if (ext.length > 1) {
+            ext = '.'+ext[ext.length-1];
+        }else{
+            ext = '';
+        }
+        folderPath = parts.join('/');
 
-                fs.readdir(folder, function (err, files) {
-                    if (err) {
-                        console.log("Logger unable to read log directory:", folder);
-                        return log_rotation();
-                    }
-
-                    var logFiles = [];
-
-                    _.forEach(files, function (file) {
-                        if (file.match(pattern)) {
-                            var number = file.replace( /\D+/g, '');
-                            logFiles.push([file, number]);
-                            //logFiles.push([file, stats.ctime.getTime()]);
-                        }
-                    });
-
-                    logFiles.sort(function(a, b) {return a[1] - b[1]});
-
-                    if (logFiles.length >= UTILS.KEEP_N_LOG_FILES) {
-                        logFiles.pop();
-                    }
-
-                    rename();
-
-                    function rename () {
-                        var data = logFiles.pop();
-                        if (!data)
-                            return log_rotation();
-
-                        fs.rename(folder + '/' + data[0], folder + '/' + basename + ' ' + (parseInt(data[1]) + 1)  + '.' + ext, function () {
-                            rename();
-                        });
-                    }
-                });
-            } else
-                dpc(60 * 1000, log_rotation);
-        })
+        newFile = 'L-$$$'+ext;
     }
 
-    log_rotation();
+    function copyFile(callback){
+        fs.readFile(file, function(err, data){
+            if (err)
+                return callback();
+
+            var fName = newFile.replace('$$$', UTILS.ts_string(fileDate).replace(/:/g, '-').replace(" ", "_") );
+            fs.writeFile( path.join(folderPath, '/', fName), data, function(err, success){
+                if (err)
+                    return callback();
+
+                fileDate    = new Date();
+                fs.writeFile(file, '', function(){
+                    callback();
+
+                    var cmd = 'gzip "'+fName+'"';
+                    exec(cmd, {cwd: folderPath}, function (error, stdout, sterr) {
+                        console.log('GZIP EXEC'.green, "CMD:", cmd, "RESULT:", arguments)
+                        removeOldLogs();
+                    });
+                });
+            });
+        });
+    }
+
+    function removeOldLogs(){
+        var diff, files = [], removed = false;
+        function done(a){
+            //console.log('removeOldLogs'.green, a)
+            //console.log('files', files)
+        }
+
+        fs.readdir(folderPath, function(err, list) {
+            if (err)
+                return done(err);
+
+            var pending = list.length;
+            if (!pending)
+                return done();
+
+            list.forEach(function(file) {
+                if (file.indexOf('L-')!==0){
+                    if (!--pending)
+                        done();
+                    return;
+                }
+
+                file = folderPath + '/' + file;
+                fs.stat(file, function(err, stat) {
+                    removed = false;
+                    if (stat) {
+                        diff = new Date().getTime() - stat.ctime.getTime();
+                        if (diff > (logPreserveTime*1000) ) {
+                            fs.unlinkSync(file);
+                            removed = true;
+                        };
+                    }
+                    (!removed) && files.push(file);
+                    if (!--pending)
+                        done();
+                });
+            });
+        });
+    }
 }
 
 UTILS.Process = function(options) {
