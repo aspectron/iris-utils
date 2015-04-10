@@ -205,7 +205,7 @@ UTILS.Logger = function(options) {
     var file = options.filename;
 
     var logIntervalTime = options.logIntervalTime || 24 * 60 * 60;
-    var logPreserveTime = options.logPreserveTime || 7 * 24 * 60 * 60;
+    var logFilesCount   = options.logFilesCount || 7;
     var newFile     = '';
     var fileDate    = new Date();
     var folderPath  = '';
@@ -225,10 +225,14 @@ UTILS.Logger = function(options) {
     }
 
     var d = new Date();
-    d.setSeconds(d.getSeconds()+20);
 
-    //uncoment following if want to start rotation at 24:00:00
-    //d.setHours(23); d.setMinutes(59); d.setSeconds(59);
+    if (options.testingMode){
+        d.setSeconds(d.getSeconds()+20);
+    }else{
+        d.setHours(23);
+        d.setMinutes(59);
+        d.setSeconds(59);
+    }
 
     var d2      = new Date();
     var diff    = d.getTime()-d2.getTime();
@@ -290,10 +294,16 @@ UTILS.Logger = function(options) {
     }
 
     function removeOldLogs(){
-        var diff, files = [], removed = false;
+        var files = [];
         function done(a){
-            //console.log('removeOldLogs'.green, a)
-            //console.log('files', files)
+            var fLength = files.length;
+            if ( fLength <= logFilesCount)
+                return;
+
+            files = _.sortBy(files, function(c){ return c.t;});
+            for(var i = 0; i < (fLength - logFilesCount); i++){
+                fs.unlinkSync(files[i].file);
+            }
         }
 
         fs.readdir(folderPath, function(err, list) {
@@ -313,15 +323,9 @@ UTILS.Logger = function(options) {
 
                 file = folderPath + '/' + file;
                 fs.stat(file, function(err, stat) {
-                    removed = false;
                     if (stat) {
-                        diff = new Date().getTime() - stat.ctime.getTime();
-                        if (diff > (logPreserveTime*1000) ) {
-                            fs.unlinkSync(file);
-                            removed = true;
-                        };
+                        files.push({file: file, t: stat.ctime.getTime()})
                     }
-                    (!removed) && files.push(file);
                     if (!--pending)
                         done();
                 });
