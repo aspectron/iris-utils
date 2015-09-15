@@ -1,5 +1,5 @@
 //
-// -- Zetta Toolkit - Set of useful utilities for NodeJs
+// -- IRIS Toolkit - Set of useful utilities for NodeJs
 //
 //  Copyright (c) 2011-2014 ASPECTRON Inc.
 //  All Rights Reserved.

@@ -1,6 +1,6 @@
 {
-  "name": "zetta-utils",
-  "description": "Zetta Toolkit - Set of useful utilities for NodeJs",
+  "name": "iris-utils",
+  "description": "IRIS Toolkit - Set of useful utilities for NodeJs",
   "version": "0.1.6",
   "author": {
     "name": "ASPECTRON Inc.",
@@ -18,11 +18,11 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git://github.com/aspectron/zetta-utils"
+    "url": "git://github.com/aspectron/iris-utils"
   },
-  "main": "zetta-utils",
+  "main": "iris-utils",
   "files": [
-    "zetta-utils.js",
+    "iris-utils.js",
     "cybermedium.flf"
   ],
   "scripts": {
@@ -33,9 +33,9 @@
   },
   "readmeFilename": "README.md",
   "bugs": {
-    "url": "https://github.com/aspectron/zetta-utils/issues"
+    "url": "https://github.com/aspectron/iris-utils/issues"
   },
   "license": "MIT",
   "readme": "A set of useful routines for NodeJS application development\r\n",
-  "homepage": "https://github.com/aspectron/zetta-utils"
+  "homepage": "https://github.com/aspectron/iris-utils"
 }
