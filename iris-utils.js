@@ -40,15 +40,34 @@ var UTILS = { }
 
 UTILS.render = function(text, font, callback) {
 
-    if(!UTILS.art)
+    if(!UTILS.art){
         UTILS.art = require('ascii-art');
+        UTILS.__oldFontPath = UTILS.art.fontPath;
+        if (UTILS.art.Figlet){
+            UTILS.__oldFontPath = UTILS.art.Figlet.fontPath;
+        }
+    }
 
-    UTILS.art.font(text, font || '../../../cybermedium', '', function(rendered) {
+    
+    UTILS.setFontPath(__dirname+"/");
+
+    UTILS.art.font(text, font || 'cybermedium', '', function(rendered) {
+
+        UTILS.setFontPath(UTILS.__oldFontPath);
+
         if(callback)
             return callback(null, rendered);
         else
             console.log('\n'+rendered);
     });
+}
+
+UTILS.setFontPath = function(path){
+    if (UTILS.art.Figlet){
+        UTILS.art.Figlet.fontPath = path;
+    }else{
+        UTILS.art.fontPath = path;
+    }
 }
 
 UTILS.get_ts = Date.now;
