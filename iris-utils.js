@@ -34,7 +34,7 @@ var path = require('path');
 
 var hostname = os.hostname();
 
-GLOBAL.dpc = function(t,fn) { if(typeof(t) == 'function') setTimeout(t,0); else setTimeout(fn,t); }
+global.dpc = function(t,fn) { if(typeof(t) == 'function') setTimeout(t,0); else setTimeout(fn,t); }
 
 var UTILS = { }
 
