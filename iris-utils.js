@@ -41,7 +41,7 @@ var UTILS = { }
 UTILS.render = function(text, font, callback) {
 
     if(!UTILS.art){
-        UTILS.art = require('ascii-art');
+        UTILS.art = require('iris-ascii-art');
         UTILS.__oldFontPath = UTILS.art.fontPath;
         if (UTILS.art.Figlet){
             UTILS.__oldFontPath = UTILS.art.Figlet.fontPath;
