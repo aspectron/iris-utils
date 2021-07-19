@@ -212,7 +212,7 @@ UTILS.bind_database_config = UTILS.bindDatabaseConfig = function(db, _config_lis
                 bind_index();
             })
 
-            collection.ensureIndex.apply(collection, args);
+            collection.createIndex.apply(collection, args);
         }
     }
 }
